@@ -1,46 +1,65 @@
 package org.app;
 
+import org.app.market.Market;
+
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 
 /**
  * @author Kemal Acar
  */
 public class Calculator {
 
-    private final Param lastValues = new Param();
+    private final Database database;
+
+    public Calculator(Database database) {
+        this.database = database;
+    }
+
+    private final LastValue lastValue = new LastValue();
+
 
     public void calculate(Param param) {
-        if (param.binancePrice != null) lastValues.binancePrice = param.binancePrice;
-        if (param.btcTurkPrice != null) lastValues.btcTurkPrice = param.btcTurkPrice;
-        if (param.paribuPrice != null) lastValues.paribuPrice = param.paribuPrice;
+        switch (param.market) {
+            case BINANCE -> lastValue.binancePrice = param.price;
+            case BTCTURK -> lastValue.btcTurkPrice = param.price;
+            case PARIBU -> lastValue.paribuPrice = param.price;
+        }
 
+        try {
+            new ProcessBuilder("clear").inheritIO().start().waitFor();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+
+//        database.saveToDb(param);
 
         System.out.println("--------------------------------------------");
-        System.out.println("BTC TURK\t: => " + lastValues.btcTurkPrice + "\t\t=> " + (lastValues.btcTurkPrice != null ? lastValues.btcTurkPrice.subtract(lastValues.binancePrice).setScale(2, RoundingMode.UP) : 0) + "$");
-        System.out.println("PRB \t\t: => " + lastValues.paribuPrice + "\t\t=> " + (lastValues.paribuPrice != null ? lastValues.paribuPrice.subtract(lastValues.binancePrice).setScale(2, RoundingMode.UP) : 0) + "$");
-        System.out.println("BINANCE \t: => " + lastValues.binancePrice);
+        System.out.println("BTC TURK\t: => " + lastValue.btcTurkPrice + "\t\t=> " + (lastValue.btcTurkPrice != null ? lastValue.btcTurkPrice.subtract(lastValue.binancePrice).setScale(2, RoundingMode.UP) : 0) + "$");
+        System.out.println("PRB \t\t: => " + lastValue.paribuPrice + "\t\t=> " + (lastValue.paribuPrice != null ? lastValue.paribuPrice.subtract(lastValue.binancePrice).setScale(2, RoundingMode.UP) : 0) + "$");
+        System.out.println("BINANCE \t: => " + lastValue.binancePrice);
 
     }
 
-    public Param getLastValues() {
-        return lastValues;
+
+
+    public LastValue getLastValue() {
+        return lastValue;
     }
 
+    public static class LastValue {
+        BigDecimal binancePrice = BigDecimal.ZERO;
+        BigDecimal btcTurkPrice;
+        BigDecimal paribuPrice;
+    }
 
     public static class Param {
-        public BigDecimal binancePrice = BigDecimal.ZERO,
-                paribuPrice,
-                btcTurkPrice;
-
-        @Override
-        public String toString() {
-            return "Param{" +
-                    "binancePrice=" + binancePrice +
-                    ", paribuPrice=" + paribuPrice +
-                    ", btcTurkPrice=" + btcTurkPrice +
-                    '}';
-        }
+        public Market market;
+        public LocalDateTime dateTime = LocalDateTime.now();
+        public String coin;
+        public BigDecimal price;
     }
 }
 

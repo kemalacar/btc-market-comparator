@@ -28,8 +28,10 @@ public class ParibuApi extends BaseApi {
             client = new JavaWebSocketClient(msg -> {
                 try {
                     Calculator.Param param = new Calculator.Param();
-                    param.paribuPrice = parsePrice(msg);
-                    if (param.paribuPrice != null) {
+                    param.price = parsePrice(msg);
+                    if (param.price != null) {
+                        param.market = Market.PARIBU;
+                        param.coin = "BTC";
                         calculator.calculate(param);
                     }
                 } catch (JsonProcessingException e) {

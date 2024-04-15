@@ -23,8 +23,12 @@ public class BinanceApi extends BaseApi {
             try {
                 HashMap map = objectMapper.readValue(message, HashMap.class);
                 Calculator.Param param = new Calculator.Param();
-                param.binancePrice = BigDecimal.valueOf(Double.parseDouble(map.get("p").toString()));
-                calculator.calculate(param);
+                param.price = BigDecimal.valueOf(Double.parseDouble(map.get("p").toString()));
+                if (param.price.compareTo(BigDecimal.ZERO) > 0) {
+                    param.market = Market.BINANCE;
+                    param.coin = "BTC";
+                    calculator.calculate(param);
+                }
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }

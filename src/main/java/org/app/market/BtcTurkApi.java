@@ -28,7 +28,9 @@ public class BtcTurkApi extends BaseApi {
                     if ((int) arrays.get(0) == 422) {
                         Map<String, String> map = (HashMap<String, String>) arrays.get(1);
                         Calculator.Param param = new Calculator.Param();
-                        param.btcTurkPrice = BigDecimal.valueOf(Double.parseDouble(map.get("P").toString()));
+                        param.price = BigDecimal.valueOf(Double.parseDouble(map.get("P")));
+                        param.market = Market.BTCTURK;
+                        param.coin = "BTC";
                         calculator.calculate(param);
                     }
                 } catch (JsonProcessingException e) {
