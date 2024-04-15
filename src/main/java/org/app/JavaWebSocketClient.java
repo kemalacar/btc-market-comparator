@@ -14,9 +14,8 @@ public class JavaWebSocketClient extends WebSocketClient {
     }
 
     @Override
-    public void onOpen(ServerHandshake handshakedata) {
-        System.out.println("Connected");
-        // do whatever
+    public void onOpen(ServerHandshake serverHandshake) {
+        System.out.printf("Connected -> %s %s", serverHandshake.getHttpStatus(), serverHandshake.getHttpStatusMessage());
     }
 
     @Override

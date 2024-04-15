@@ -3,5 +3,5 @@ package org.app;
 
 @FunctionalInterface
 public interface MessageCallBack {
-    void onMessage( String response) ;
+    void onMessage(String response) ;
 }

@@ -1,43 +1,28 @@
-version: "3.8"
-
-networks:
-  traderepublic:
-    driver: bridge
-  node-network:
-    driver: bridge
+version: '3.8'
 
 services:
-#  rabbitmq:
-#    image: "rabbitmq:3.7-management-alpine"
-#    container_name: rabbitmq
-#    volumes:
-#      - ./rabbitmq-config/definitions.json:/etc/rabbitmq/definitions.json
-#    ports:
-#        - "5672:5672"
-#        - "15672:15672"
-#    networks:
-#      - traderepublic
-#
-#    healthcheck:
-#      test: rabbitmq-diagnostics -q ping
-#      interval: 5s
-#      timeout: 20s
-#      retries: 5
-
-
   mongodb:
-    image: mongo:6-jammy
+    image: mongo
+    container_name: mongodb
     ports:
-      - '27017:27017'
+      - "27017:27017"
     volumes:
-      - dbdata6:/data/db
-    networks:
-      - node-network
-    healthcheck:
-      test: echo 'db.runCommand("ping").ok'
-      interval: 10s
-      timeout: 10s
-      retries: 5
+      - mongodb_data:/data/db
+    restart: unless-stopped
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: mongodb
+      ME_CONFIG_MONGODB_PORT: 27017
+      ME_CONFIG_BASICAUTH_USERNAME: admin
+      ME_CONFIG_BASICAUTH_PASSWORD: password
+    depends_on:
+      - mongodb
+    restart: unless-stopped
 
 volumes:
-  dbdata6:
+  mongodb_data:
