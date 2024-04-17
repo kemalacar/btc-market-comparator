@@ -19,8 +19,8 @@ public class Database {
     public void saveToDb(CoinRepository.Param param, String collectionName) {
         MongoCollection<Document> collection = database.getCollection(collectionName);
         Document document = new Document();
-        document.put("value", param.price);
-        document.put("amount",param.amount);
+        document.put("ask", param.ask);
+        document.put("bid",param.bid);
         document.put("dateTime", param.dateTime);
         InsertOneResult insertOneResult = collection.insertOne(document);
 

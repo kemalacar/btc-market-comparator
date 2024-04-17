@@ -2,8 +2,7 @@ package org.app;
 
 import org.app.market.Market;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -23,10 +22,10 @@ public class CoinRepository {
 
     public static class Param {
         public Market market;
-        public LocalDateTime dateTime = LocalDateTime.now();
+        public long dateTime;
         public String coin;
-        public double amount;
-        public BigDecimal price;
+        public Map<String,String> bid;
+        public Map<String,String> ask;
     }
 }
 

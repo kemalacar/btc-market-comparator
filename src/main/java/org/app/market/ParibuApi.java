@@ -1,18 +1,19 @@
 package org.app.market;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.app.CoinRepository;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Optional;
+import java.util.Map;
 
 /**
  * @author Kemal Acar
  */
 public class ParibuApi extends BaseApi {
+
+    private String coinName;
+
     public ParibuApi(CoinRepository calculator) {
         super(calculator);
     }
@@ -26,7 +27,7 @@ public class ParibuApi extends BaseApi {
     public void onMessage(String msg) {
         try {
             CoinRepository.Param param = parseResponse(msg);
-            if (param != null && param.price != null) {
+            if (param != null && param.bid != null) {
                 coinRepository.saveParamToDb(param);
             }
         } catch (JsonProcessingException e) {
@@ -35,49 +36,46 @@ public class ParibuApi extends BaseApi {
     }
 
     @Override
-    public void subscribe() {
-        String message = "{\"event\": \"pusher:subscribe\",\"data\": {\"auth\": \"\",\"channel\": \"cache-market-btc_usdt-latest-matches\"}}";
+    public void subscribe(String coinName) {
+        this.coinName = coinName;
+        String message = "{\"event\": \"pusher:subscribe\",\"data\": {\"auth\": \"\",\"channel\": \"cache-market-" + coinName + "-orderbook\"}}";
         client.send(message);
     }
 
-    public CoinRepository.Param parseResponse(String response) throws JsonProcessingException {
+    public CoinRepository.Param parseResponse(String responseString) throws JsonProcessingException {
         CoinRepository.Param param = new CoinRepository.Param();
-        HashMap map = objectMapper.readValue(response, HashMap.class);
-        Object event = map.get("event");
-        if ("diff".equals(event)) {
-            Object data = map.get("data");
-            ParibuResponse res = objectMapper.readValue(data.toString(), ParibuResponse.class);
-            Comparator<ParibuResponse.Item> latestComparator = Comparator
-                    .comparing(ParibuResponse.Item::getTimestamp);
-            Optional<ParibuResponse.Item> max = res.payload.values().stream()
-                    .max(latestComparator);
-
-            ParibuResponse.Item item = max.orElse(null);
-            if (item != null) {
-                param.price = BigDecimal.valueOf(item.price);
-                param.market = Market.PARIBU;
-                param.coin = "BTC";
-                param.amount = item.amount;
-                return param;
-            }
-        }
-        return null;
+        ParibuResponse response = objectMapper.readValue(responseString, ParibuResponse.class); //todo parser hatası
+        ParibuResponse.Data data = response.data;
+        param.market = Market.PARIBU;
+        param.bid = data.payload.buy;
+        param.ask = data.payload.sell;
+        param.coin = this.coinName;
+        param.dateTime = System.currentTimeMillis();
+        return param;
     }
 
-
     public static class ParibuResponse {
-        public HashMap<String, Item> payload = new HashMap<>();
-        public String action;
+        public Data data;
 
-        public static class Item {
-            public Double amount;
-            public Double price;
-            public LocalDateTime timestamp;
-            public String trade;
-
-            public LocalDateTime getTimestamp() {
-                return timestamp;
+        @JsonCreator
+        public ParibuResponse(@JsonProperty Data data) {
+            this.data = data;
+        }
+        public static class Data {
+            @JsonCreator
+            public Data(@JsonProperty Payload payload) {
+                this.payload = payload;
             }
+            private Payload payload;
+        }
+        public static class Payload {
+            @JsonCreator
+            public Payload(@JsonProperty("buy") Map<String, String> buy, @JsonProperty("sell") Map<String, String> sell) {
+                this.buy = buy;
+                this.sell = sell;
+            }
+            private Map<String, String> buy;
+            private Map<String, String> sell;
         }
     }
 }

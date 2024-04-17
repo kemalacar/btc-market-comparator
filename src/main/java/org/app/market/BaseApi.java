@@ -1,33 +1,28 @@
 package org.app.market;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
-import com.fasterxml.jackson.datatype.jsr310.ser.LocalTimeSerializer;
 import org.app.CoinRepository;
 import org.app.JavaWebSocketClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * @author Kemal Acar
  */
 public abstract class BaseApi {
-    protected ObjectMapper objectMapper = new ObjectMapper();
+    protected static ObjectMapper objectMapper = new ObjectMapper()
+            .disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
+            .disable(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE)
+            .enable(JsonParser.Feature.INCLUDE_SOURCE_IN_LOCATION);
+
     protected CoinRepository coinRepository;
     protected JavaWebSocketClient client;
 
     public BaseApi(CoinRepository calculator) {
         this.coinRepository = calculator;
-        JavaTimeModule module = new JavaTimeModule();
-        LocalDateTimeDeserializer localDateTimeDeserializer = new LocalDateTimeDeserializer(DateTimeFormatter.ISO_DATE_TIME);
-        module.addDeserializer(LocalDateTime.class, localDateTimeDeserializer);
-        module.addSerializer(LocalTime.class, new LocalTimeSerializer(DateTimeFormatter.ISO_LOCAL_TIME));
-        objectMapper.registerModule(module);
     }
 
     public BaseApi connect() {
@@ -40,10 +35,14 @@ public abstract class BaseApi {
         return this;
     }
 
-    public void subscribe() {}
+    public void subscribe(String coinName) {
+    }
 
-    String getSocketUrl() {return "default";}
+    String getSocketUrl() {
+        return "default";
+    }
 
-    protected void onMessage(String msg) {}
+    protected void onMessage(String msg) {
+    }
 }
 
