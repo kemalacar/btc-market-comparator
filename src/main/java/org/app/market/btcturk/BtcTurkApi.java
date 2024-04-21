@@ -1,7 +1,8 @@
-package org.app.market;
+package org.app.market.btcturk;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.app.CoinRepository;
+import org.app.market.BaseCoinApi;
+import org.app.repository.CoinRepository;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -10,7 +11,7 @@ import java.util.List;
 /**
  * @author Kemal Acar
  */
-public class BtcTurkApi extends BaseApi {
+public class BtcTurkApi extends BaseCoinApi {
 
     public BtcTurkApi(CoinRepository calculator) {
         super(calculator);
@@ -43,7 +44,7 @@ public class BtcTurkApi extends BaseApi {
     }
 
     @Override
-    String getSocketUrl() {
+    protected String getSocketUrl() {
         return "wss://ws-feed-pro.btcturk.com";
     }
 }

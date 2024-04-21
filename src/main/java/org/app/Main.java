@@ -1,6 +1,9 @@
 package org.app;
 
-import org.app.market.ParibuApi;
+import org.app.market.binance.BinanceApi;
+import org.app.market.paribu.ParibuApi;
+import org.app.repository.CoinRepository;
+import org.app.repository.Database;
 
 /**
  * @author Kemal Acar
@@ -14,7 +17,7 @@ public class Main {
 
         new ParibuApi(coinRepository).connect().subscribe("btc_usdt");
         //new BtcTurkApi(coinRepository).connect().subscribe("BTCUSDT");
-        //new BinanceApi(coinRepository).subscribe("btcusdt");
+        new BinanceApi(coinRepository).subscribe("btcusdt");
     }
 
 }
