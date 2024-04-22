@@ -2,6 +2,7 @@ package org.app.repository;
 
 import org.app.market.Market;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -16,12 +17,12 @@ public class CoinRepository {
         this.database = database;
     }
 
-    public void saveParamToDb(Param param) {
-        CompletableFuture.runAsync(() -> database.saveDbToCoin(param, param.market + "_" + param.coin));
+    public void saveParamToDb(List<Param> paramList) {
+        CompletableFuture.runAsync(() -> database.saveDbToCoinList(paramList, paramList.get(0).market + "_" + paramList.get(0).coin));
     }
 
-    public void saveMainMarketCoin(MainMarketCoin mainMarketCoin) {
-        CompletableFuture.runAsync(() -> database.saveMarketPrice(mainMarketCoin, mainMarketCoin.market + "_" + mainMarketCoin.coin));
+    public void saveMainMarketCoin(List<MainMarketCoin> mainMarketCoin) {
+        CompletableFuture.runAsync(() -> database.saveMarketPrice(mainMarketCoin, mainMarketCoin.get(0).market + "_" + mainMarketCoin.get(0).coin));
     }
 
     public static class Param {

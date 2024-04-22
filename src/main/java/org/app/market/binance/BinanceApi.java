@@ -9,6 +9,8 @@ import org.app.market.Market;
 import org.app.repository.CoinRepository;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author Kemal Acar
@@ -17,28 +19,39 @@ public class BinanceApi extends BaseApi {
     public static final String PRICE = "p";
     public static final String EVENT_TIME = "E";
     public static final String QUANTITY = "q";
-    private final WebSocketStreamClient client = new WebSocketStreamClientImpl();
-    JsonFactory factory = new JsonFactory();
+    private final WebSocketStreamClient client;
+    private final JsonFactory factory;
+    private List<CoinRepository.MainMarketCoin> recordList = new ArrayList<>();
 
     public BinanceApi(CoinRepository calculator) {
         super(calculator);
+        client = new WebSocketStreamClientImpl();
+        factory = new JsonFactory();
     }
 
     public void subscribe(String coinName) {
         client.tradeStream(coinName, message -> {
             TradeEvent tradeEvent = getTradeEvent(message);
-            CoinRepository.MainMarketCoin mainMarketCoin = new CoinRepository.MainMarketCoin();
             if (tradeEvent != null) {
+                CoinRepository.MainMarketCoin mainMarketCoin = new CoinRepository.MainMarketCoin();
+                mainMarketCoin.saveTime = System.currentTimeMillis();
                 mainMarketCoin.market = Market.BINANCE;
                 mainMarketCoin.coin = coinName;
                 mainMarketCoin.price = tradeEvent.price;
                 mainMarketCoin.quantity = tradeEvent.quantity;
                 mainMarketCoin.eventTime = tradeEvent.eventTime;
-                mainMarketCoin.saveTime = System.currentTimeMillis();
 
-                coinRepository.saveMainMarketCoin(mainMarketCoin);
+                save(mainMarketCoin);
             }
         });
+    }
+
+    private void save(CoinRepository.MainMarketCoin mainMarketCoin) {
+        recordList.add(mainMarketCoin);
+        if (recordList.size() > 100) { // bulk save
+            coinRepository.saveMainMarketCoin(recordList);
+            recordList = new ArrayList<>();
+        }
     }
 
     private TradeEvent getTradeEvent(String message) {
@@ -79,7 +92,5 @@ public class BinanceApi extends BaseApi {
         String price;
         String quantity;
     }
-
-
 }
 

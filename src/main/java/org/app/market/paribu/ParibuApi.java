@@ -5,12 +5,16 @@ import org.app.market.BaseCoinApi;
 import org.app.market.Market;
 import org.app.repository.CoinRepository;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author Kemal Acar
  */
 public class ParibuApi extends BaseCoinApi {
 
     private String coinName;
+    private List<CoinRepository.Param> recordList = new ArrayList<>();
 
     public ParibuApi(CoinRepository calculator) {
         super(calculator);
@@ -26,10 +30,18 @@ public class ParibuApi extends BaseCoinApi {
         try {
             CoinRepository.Param param = parseResponse(msg);
             if (param != null && param.bid != null) {
-                coinRepository.saveParamToDb(param);
+                save(param);
             }
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    private void save(CoinRepository.Param param) {
+        recordList.add(param);
+        if (recordList.size() > 10) {
+            coinRepository.saveParamToDb(recordList);
+            recordList = new ArrayList<>();
         }
     }
 
