@@ -3,6 +3,7 @@ package org.app.market.paribu;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.app.market.BaseCoinApi;
 import org.app.market.Market;
+import org.app.market.MarketPriceCacheContext;
 import org.app.repository.CoinRepository;
 
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import java.util.List;
 public class ParibuApi extends BaseCoinApi {
 
     private String coinName;
-    private List<CoinRepository.Param> recordList = new ArrayList<>();
+    private List<CoinRepository.Param> recordList = new ArrayList<>(); // todo thread safe CopyOnwrite olacak bakılmalı
 
     public ParibuApi(CoinRepository calculator) {
         super(calculator);
@@ -39,7 +40,7 @@ public class ParibuApi extends BaseCoinApi {
 
     private void save(CoinRepository.Param param) {
         recordList.add(param);
-        if (recordList.size() > 10) {
+        if (recordList.size() > 9) {
             coinRepository.saveParamToDb(recordList);
             recordList = new ArrayList<>();
         }
@@ -58,13 +59,21 @@ public class ParibuApi extends BaseCoinApi {
             MarketEvent response = objectMapper.readValue(responseString, MarketEvent.class);
             MarketEvent.Data data = response.getData();
             param.market = Market.PARIBU;
-            param.bid = data.getPayload().getSell();
-            param.ask = data.getPayload().getBuy();
+            param.bid = data.getPayload().getBuy();
+            param.ask = data.getPayload().getSell();
             param.coin = this.coinName;
             param.dateTime = System.currentTimeMillis();
+            setDifferencesWithMarketPrice(param, data);
             return param;
         } catch (Exception e) {
             return null;
         }
+    }
+
+    private void setDifferencesWithMarketPrice(CoinRepository.Param param, MarketEvent.Data data) {
+        CoinRepository.MainMarketCoin lastMainMarketCoin = MarketPriceCacheContext.mainMarketCoins.peek();
+        param.marketEventTime = lastMainMarketCoin.eventTime;
+        param.marketPrice = lastMainMarketCoin.price;
+        param.marketDifferencePercentage = ((param.marketPrice - Double.parseDouble(data.getPayload().getSell().keySet().stream().findFirst().orElse("0"))) / param.marketPrice) * 100;
     }
 }

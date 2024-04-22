@@ -26,6 +26,11 @@ public class Database {
             document.put("ask", param.ask);
             document.put("bid",param.bid);
             document.put("dateTime", param.dateTime);
+            document.put("marketDifferencePercentage",param.marketDifferencePercentage);
+            document.put("marketEventTime",param.marketEventTime);
+            document.put("marketPrice",param.marketPrice);
+            document.put("timeDifference", (param.dateTime - Long.parseLong(param.marketEventTime)));
+
             documentList.add(document);
         }
         collection.insertMany(documentList);

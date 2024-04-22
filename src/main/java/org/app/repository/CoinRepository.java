@@ -31,6 +31,9 @@ public class CoinRepository {
         public String coin;
         public Map<String,String> bid;
         public Map<String,String> ask;
+        public double marketPrice;
+        public String marketEventTime;
+        public double marketDifferencePercentage;
     }
 
     public static class MainMarketCoin {
@@ -38,7 +41,7 @@ public class CoinRepository {
         public String eventTime;
         public long saveTime; // Our system save time
         public String coin;
-        public String price;
+        public double price;
         public String quantity;
     }
 }

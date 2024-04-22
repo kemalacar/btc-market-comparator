@@ -6,11 +6,10 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import org.app.market.BaseApi;
 import org.app.market.Market;
+import org.app.market.MarketPriceCacheContext;
 import org.app.repository.CoinRepository;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Kemal Acar
@@ -21,7 +20,6 @@ public class BinanceApi extends BaseApi {
     public static final String QUANTITY = "q";
     private final WebSocketStreamClient client;
     private final JsonFactory factory;
-    private List<CoinRepository.MainMarketCoin> recordList = new ArrayList<>();
 
     public BinanceApi(CoinRepository calculator) {
         super(calculator);
@@ -47,10 +45,11 @@ public class BinanceApi extends BaseApi {
     }
 
     private void save(CoinRepository.MainMarketCoin mainMarketCoin) {
-        recordList.add(mainMarketCoin);
-        if (recordList.size() > 100) { // bulk save
-            coinRepository.saveMainMarketCoin(recordList);
-            recordList = new ArrayList<>();
+        MarketPriceCacheContext.mainMarketCoins.add(mainMarketCoin);
+        if (MarketPriceCacheContext.mainMarketCoins.size() > 20) { // for bulk save
+            //coinRepository.saveMainMarketCoin(MarketPriceCacheContext.mainMarketCoins);
+            MarketPriceCacheContext.mainMarketCoins.clear();
+            MarketPriceCacheContext.mainMarketCoins.add(mainMarketCoin);
         }
     }
 
@@ -67,7 +66,7 @@ public class BinanceApi extends BaseApi {
                 switch (fieldName) {
                     case PRICE -> {
                         parser.nextToken();
-                        tradeEvent.price = parser.getText();
+                        tradeEvent.price = Double.parseDouble(parser.getText());
                     }
                     case EVENT_TIME -> {
                         parser.nextToken();
@@ -89,7 +88,7 @@ public class BinanceApi extends BaseApi {
 
     private static class TradeEvent {
         String eventTime;
-        String price;
+        double price;
         String quantity;
     }
 }
