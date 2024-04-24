@@ -16,6 +16,12 @@ public class MarketUtil {
         coinNameInMarket.put(Market.BTCTURK,"BTCUSDT");
 
         coinNamesInMarketsMap.put(Coin.BTC, coinNameInMarket);
+
+        coinNameInMarket.put(Market.BINANCE,"avaxusdt");
+        coinNameInMarket.put(Market.PARIBU,"avax_usdt");
+        //coinNameInMarket.put(Market.BTCTURK,);
+
+        coinNamesInMarketsMap.put(Coin.AVAX, coinNameInMarket);
     }
 
 }

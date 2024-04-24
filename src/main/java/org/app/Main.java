@@ -19,7 +19,7 @@ public class Main {
         System.out.println("Server started...");
         CoinRepository coinRepository = new CoinRepository(new Database());
 
-        HashMap<Market, String> marketCoinMap = MarketUtil.coinNamesInMarketsMap.get(Coin.BTC);
+        HashMap<Market, String> marketCoinMap = MarketUtil.coinNamesInMarketsMap.get(Coin.AVAX);
 
         //Main Market Coin
         new BinanceApi(coinRepository).subscribe(marketCoinMap.get(Market.BINANCE));

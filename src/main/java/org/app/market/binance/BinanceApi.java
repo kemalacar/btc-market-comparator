@@ -28,6 +28,7 @@ public class BinanceApi extends BaseApi {
     }
 
     public void subscribe(String coinName) {
+        //todo orderbook bid - ask farkları
         client.tradeStream(coinName, message -> {
             TradeEvent tradeEvent = getTradeEvent(message);
             if (tradeEvent != null) {
