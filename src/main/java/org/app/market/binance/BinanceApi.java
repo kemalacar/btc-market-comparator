@@ -36,7 +36,7 @@ public class BinanceApi extends BaseApi {
                 mainMarketCoin.saveTime = System.currentTimeMillis();
                 mainMarketCoin.market = Market.BINANCE;
                 mainMarketCoin.coin = coinName;
-                mainMarketCoin.price = tradeEvent.price;
+                mainMarketCoin.price = tradeEvent.price; //highest bid in binance
                 mainMarketCoin.quantity = tradeEvent.quantity;
                 mainMarketCoin.eventTime = tradeEvent.eventTime;
 
@@ -46,12 +46,9 @@ public class BinanceApi extends BaseApi {
     }
 
     private void save(CoinRepository.MainMarketCoin mainMarketCoin) {
-        MarketPriceCacheContext.mainMarketCoins.add(mainMarketCoin);
-        if (MarketPriceCacheContext.mainMarketCoins.size() > 20) { // for bulk save
-            //coinRepository.saveMainMarketCoin(MarketPriceCacheContext.mainMarketCoins);
-            MarketPriceCacheContext.mainMarketCoins.clear();
-            MarketPriceCacheContext.mainMarketCoins.add(mainMarketCoin);
-        }
+        MarketPriceCacheContext.setMainMarketCoin(mainMarketCoin);
+        System.out.println(mainMarketCoin.market + "-" + mainMarketCoin.coin + " price:" + mainMarketCoin.price);
+        //coinRepository.saveMainMarketCoin();
     }
 
     private TradeEvent getTradeEvent(String message) {

@@ -40,6 +40,7 @@ public class ParibuApi extends BaseCoinApi {
 
     private void save(CoinRepository.Param param) {
         recordList.add(param);
+        System.out.println(param.market + " Trade Event - Market Price:"+ param.marketPrice+ " Trade Time:"+ param.dateTime);
         if (recordList.size() > 9) {
             coinRepository.saveParamToDb(recordList);
             recordList = new ArrayList<>();
@@ -71,7 +72,7 @@ public class ParibuApi extends BaseCoinApi {
     }
 
     private void setDifferencesWithMarketPrice(CoinRepository.Param param, MarketEvent.Data data) {
-        CoinRepository.MainMarketCoin lastMainMarketCoin = MarketPriceCacheContext.mainMarketCoins.peek();
+        CoinRepository.MainMarketCoin lastMainMarketCoin = MarketPriceCacheContext.mainMarketCoin;
         param.marketEventTime = lastMainMarketCoin.eventTime;
         param.marketPrice = lastMainMarketCoin.price;
         param.marketDifferencePercentage = ((param.marketPrice - Double.parseDouble(data.getPayload().getSell().keySet().stream().findFirst().orElse("0"))) / param.marketPrice) * 100;
