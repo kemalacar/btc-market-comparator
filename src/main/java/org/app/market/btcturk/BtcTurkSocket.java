@@ -1,20 +1,30 @@
 package org.app.market.btcturk;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import org.app.market.BaseCoinApi;
+import org.app.market.BaseSocket;
+import org.app.market.data.ExchangeCoin;
 import org.app.repository.CoinRepository;
+import org.app.wallet.WalletOperation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * @author Kemal Acar
  */
-public class BtcTurkApi extends BaseCoinApi {
+public class BtcTurkSocket extends BaseSocket {
 
-    public BtcTurkApi(CoinRepository calculator) {
-        super(calculator);
+    private String coinName;
+    private WalletOperation walletOperation;
+    private final CopyOnWriteArrayList<ExchangeCoin> recordList = new CopyOnWriteArrayList<>();
+    private boolean performTrade;
+
+    public BtcTurkSocket(CoinRepository coinRepository, WalletOperation walletOperation,boolean performTrade) {
+        super(coinRepository);
+        this.walletOperation = walletOperation;
+        this.performTrade = performTrade;
     }
 
     @Override

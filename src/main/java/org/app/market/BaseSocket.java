@@ -1,7 +1,7 @@
 package org.app.market;
 
+import org.app.config.socket.JavaWebSocketClient;
 import org.app.repository.CoinRepository;
-import org.app.socket.JavaWebSocketClient;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -9,15 +9,16 @@ import java.net.URISyntaxException;
 /**
  * @author anercan
  */
-public abstract class BaseCoinApi extends BaseApi {
+public abstract class BaseSocket extends BaseApi {
 
     protected JavaWebSocketClient client;
+    protected CoinRepository coinRepository;
 
-    public BaseCoinApi(CoinRepository calculator) {
-        super(calculator);
+    public BaseSocket(CoinRepository coinRepository) {
+        this.coinRepository = coinRepository;
     }
 
-    public BaseCoinApi connect() {
+    public BaseSocket connect() {
         try {
             client = new JavaWebSocketClient(this::onMessage, new URI(getSocketUrl()));
             client.connectBlocking();

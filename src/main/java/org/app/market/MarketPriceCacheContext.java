@@ -1,15 +1,15 @@
 package org.app.market;
 
-import org.app.repository.CoinRepository;
+import org.app.market.data.MainMarketCoin;
 
 /**
  * @author anercan
  */
 public class MarketPriceCacheContext {
 
-    public static CoinRepository.MainMarketCoin mainMarketCoin = new CoinRepository.MainMarketCoin();
+    public static MainMarketCoin mainMarketCoin = new MainMarketCoin(); //todo map yapılıp ortalaması yazılabilir average-MarketPrice
 
-    public static void setMainMarketCoin(CoinRepository.MainMarketCoin mainMarketCoin) {
+    public static void setMainMarketCoin(MainMarketCoin mainMarketCoin) {
         MarketPriceCacheContext.mainMarketCoin = mainMarketCoin;
     }
 }

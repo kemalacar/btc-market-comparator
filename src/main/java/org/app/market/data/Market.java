@@ -1,4 +1,4 @@
-package org.app.market;
+package org.app.market.data;
 
 /**
  * @author Kemal Acar

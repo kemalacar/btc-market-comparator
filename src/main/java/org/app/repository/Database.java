@@ -3,8 +3,12 @@ package org.app.repository;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import org.app.market.data.ExchangeCoin;
 import org.bson.Document;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,38 +22,23 @@ public class Database {
         this.database = MongoClients.create("mongodb://localhost:27017").getDatabase("coinRecords");
     }
 
-    public void saveDbToCoinList(List<CoinRepository.Param> paramList, String collectionName) {
+    public void saveDbToCoinList(List<ExchangeCoin> paramList, String collectionName) {
         MongoCollection<Document> collection = database.getCollection(collectionName);
         List<Document> documentList = new ArrayList<>();
-        for (CoinRepository.Param param:paramList) {
+        for (ExchangeCoin param : paramList) {
+            long marketEventTime = Long.parseLong(param.marketEventTime);
             Document document = new Document();
             document.put("ask", param.ask);
-            document.put("bid",param.bid);
-            document.put("dateTime", param.dateTime);
-            document.put("marketDifferencePercentage",param.marketDifferencePercentage);
-            document.put("marketEventTime",param.marketEventTime);
-            document.put("marketPrice",param.marketPrice);
-            document.put("timeDifference", (param.dateTime - Long.parseLong(param.marketEventTime)));
+            document.put("bid", param.bid);
+            document.put("dateTime", LocalDateTime.ofInstant(Instant.ofEpochMilli(param.dateTime), ZoneOffset.UTC));
+            document.put("marketDifferencePercentage", param.marketDifferencePercentage);
+            document.put("marketEventTime", LocalDateTime.ofInstant(Instant.ofEpochMilli(marketEventTime), ZoneOffset.UTC));
+            document.put("marketPrice", param.marketPrice);
+            document.put("timeDifference", (param.dateTime - marketEventTime));
 
             documentList.add(document);
         }
         collection.insertMany(documentList);
     }
-
-    public void saveMarketPrice(List<CoinRepository.MainMarketCoin> paramList, String collectionName) {
-        MongoCollection<Document> collection = database.getCollection(collectionName);
-        List<Document> documentList = new ArrayList<>();
-        for (CoinRepository.MainMarketCoin param:paramList) {
-            Document document = new Document();
-            document.put("price", param.price);
-            document.put("quantity",param.quantity);
-            document.put("eventTimeInMarket", param.eventTime);
-            document.put("saveTime", param.saveTime);
-            documentList.add(document);
-        }
-        collection.insertMany(documentList);
-    }
-
-
 }
 

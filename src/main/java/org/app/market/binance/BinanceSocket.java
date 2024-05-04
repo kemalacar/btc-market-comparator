@@ -4,25 +4,23 @@ import com.binance.connector.client.WebSocketStreamClient;
 import com.binance.connector.client.impl.WebSocketStreamClientImpl;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
-import org.app.market.BaseApi;
-import org.app.market.Market;
 import org.app.market.MarketPriceCacheContext;
-import org.app.repository.CoinRepository;
+import org.app.market.data.MainMarketCoin;
+import org.app.market.data.Market;
 
 import java.io.IOException;
 
 /**
  * @author Kemal Acar
  */
-public class BinanceApi extends BaseApi {
+public class BinanceSocket {
     public static final String PRICE = "p";
     public static final String EVENT_TIME = "E";
     public static final String QUANTITY = "q";
     private final WebSocketStreamClient client;
     private final JsonFactory factory;
 
-    public BinanceApi(CoinRepository calculator) {
-        super(calculator);
+    public BinanceSocket() {
         client = new WebSocketStreamClientImpl();
         factory = new JsonFactory();
     }
@@ -32,7 +30,7 @@ public class BinanceApi extends BaseApi {
         client.tradeStream(coinName, message -> {
             TradeEvent tradeEvent = getTradeEvent(message);
             if (tradeEvent != null) {
-                CoinRepository.MainMarketCoin mainMarketCoin = new CoinRepository.MainMarketCoin();
+                MainMarketCoin mainMarketCoin = new MainMarketCoin();
                 mainMarketCoin.saveTime = System.currentTimeMillis();
                 mainMarketCoin.market = Market.BINANCE;
                 mainMarketCoin.coin = coinName;
@@ -45,7 +43,7 @@ public class BinanceApi extends BaseApi {
         });
     }
 
-    private void save(CoinRepository.MainMarketCoin mainMarketCoin) {
+    private void save(MainMarketCoin mainMarketCoin) {
         MarketPriceCacheContext.setMainMarketCoin(mainMarketCoin);
         System.out.println(mainMarketCoin.market + "-" + mainMarketCoin.coin + " price:" + mainMarketCoin.price);
         //coinRepository.saveMainMarketCoin();

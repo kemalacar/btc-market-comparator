@@ -1,4 +1,4 @@
-package org.app.socket;
+package org.app.config.socket;
 
 
 @FunctionalInterface

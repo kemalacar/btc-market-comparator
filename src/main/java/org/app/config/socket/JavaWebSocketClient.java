@@ -1,4 +1,4 @@
-package org.app.socket;
+package org.app.config.socket;
 
 import org.java_websocket.client.WebSocketClient;
 import org.java_websocket.handshake.ServerHandshake;
@@ -15,7 +15,7 @@ public class JavaWebSocketClient extends WebSocketClient {
 
     @Override
     public void onOpen(ServerHandshake serverHandshake) {
-        System.out.printf("Connected -> %s %s", serverHandshake.getHttpStatus(), serverHandshake.getHttpStatusMessage());
+        System.out.printf("Socket Connected -> %s %s \n", serverHandshake.getHttpStatus(), serverHandshake.getHttpStatusMessage());
     }
 
     @Override
